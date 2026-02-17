@@ -1,0 +1,50 @@
+workflows:
+  default:
+    name: Build Budget Tracker iOS
+    instance_type: mac_mini_m1
+    environment:
+      xcode: latest
+      vars:
+        BUNDLE_ID: "com.budgettracker.app"
+        APP_NAME: "BudgetTracker"
+    
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+
+      - name: Generate Xcode project
+        script: |
+          ls -la
+          ls -la BudgetTracker/
+          ls -la BudgetTracker/Models/
+          ls -la BudgetTracker/Views/
+          xcodegen generate
+          echo "--- Generated project files ---"
+          ls -la BudgetTracker.xcodeproj/
+
+      - name: Build iOS app
+        script: |
+          xcodebuild \
+            -project BudgetTracker.xcodeproj \
+            -scheme BudgetTracker \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            -archivePath build/BudgetTracker.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            archive
+
+      - name: Create unsigned IPA
+        script: |
+          mkdir -p build/output/Payload
+          cp -r build/BudgetTracker.xcarchive/Products/Applications/BudgetTracker.app build/output/Payload/
+          cd build/output
+          zip -r BudgetTracker.ipa Payload
+          echo "--- IPA created ---"
+          ls -la BudgetTracker.ipa
+
+    artifacts:
+      - build/output/*.ipa
