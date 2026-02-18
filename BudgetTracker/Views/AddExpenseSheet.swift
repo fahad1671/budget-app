@@ -50,7 +50,7 @@ struct AddExpenseSheet: View {
                     Button("Add") {
                         addExpense()
                     }
-                    .fontWeight(.semibold)
+                    .font(.system(.body, design: .default).weight(.semibold))
                 }
             }
         }
@@ -77,3 +77,4 @@ struct AddExpenseSheet: View {
     AddExpenseSheet(isPresented: .constant(true))
         .environmentObject(BudgetManager())
 }
+
